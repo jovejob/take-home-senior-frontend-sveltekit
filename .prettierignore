@@ -1,0 +1,9 @@
+.svelte-kit
+build
+.vercel
+node_modules
+package-lock.json
+playwright-report
+test-results
+coverage
+static

@@ -1,0 +1,87 @@
+{
+	"name": "take-home-senior-frontend-sveltekit",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo '' && husky",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"test:unit": "vitest run",
+		"test:unit:watch": "vitest",
+		"test:e2e": "playwright test",
+		"test": "npm run test:unit && npm run test:e2e",
+		"size": "size-limit",
+		"lhci": "npm run build && lhci autorun"
+	},
+	"devDependencies": {
+		"@axe-core/playwright": "^4.10.1",
+		"@eslint/js": "^9.17.0",
+		"@lhci/cli": "^0.14.0",
+		"@playwright/test": "^1.49.1",
+		"@size-limit/preset-app": "^11.1.6",
+		"@sveltejs/adapter-vercel": "^5.6.0",
+		"@sveltejs/kit": "^2.15.1",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/svelte": "^5.2.6",
+		"@types/node": "^22.10.5",
+		"@typescript-eslint/eslint-plugin": "^8.19.1",
+		"@typescript-eslint/parser": "^8.19.1",
+		"@vitest/coverage-v8": "^2.1.8",
+		"autoprefixer": "^10.4.20",
+		"eslint": "^9.17.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.46.1",
+		"globals": "^15.14.0",
+		"husky": "^9.1.7",
+		"jsdom": "^25.0.1",
+		"lint-staged": "^15.3.0",
+		"postcss": "^8.4.49",
+		"prettier": "^3.3.3",
+		"prettier-plugin-svelte": "^4.1.1",
+		"size-limit": "^11.1.6",
+		"svelte": "^5.16.0",
+		"svelte-check": "^4.1.1",
+		"svelte-eslint-parser": "^0.43.0",
+		"tailwindcss": "^3.4.17",
+		"tslib": "^2.8.1",
+		"typescript": "^5.7.2",
+		"vite": "^6.0.7",
+		"vitest": "^2.1.8"
+	},
+	"dependencies": {
+		"web-vitals": "^4.2.4",
+		"zod": "^3.24.1"
+	},
+	"overrides": {
+		"vite": "^6.0.7",
+		"prettier": "^3.3.3"
+	},
+	"lint-staged": {
+		"*.{js,ts,svelte}": [
+			"eslint --fix"
+		],
+		"*.{js,ts,svelte,css,md,json}": [
+			"prettier --write"
+		]
+	},
+	"size-limit": [
+		{
+			"name": "public route JS (initial)",
+			"path": ".svelte-kit/output/client/_app/immutable/entry/*.js",
+			"limit": "80 KB"
+		}
+	],
+	"engines": {
+		"node": ">=20"
+	}
+}
