@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
+	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { serializeItemsQuery } from '$lib/utils/url-state';
-	import { ITEM_STATUSES, ITEM_CHANNELS, ITEM_SORT_FIELDS } from '$lib/server/schemas/item';
-	import type { ItemSortField } from '$lib/server/schemas/item';
+	import { ITEM_STATUSES, ITEM_CHANNELS, ITEM_SORT_FIELDS } from '$lib/schemas/item';
+	import type { ItemSortField, ItemStatus } from '$lib/schemas/item';
+	import type { Item } from '$lib/server/schemas/item';
 	import type { ItemsQuery } from '$lib/server/data/query-items';
 	import type { PageData } from './$types';
 
@@ -15,6 +17,15 @@
 	$effect(() => {
 		searchInput = data.query.q;
 	});
+
+	// Optimistic overrides for in-flight/failed status edits, keyed by item
+	// id. Falls back to the item's real status when there's no pending edit.
+	let pendingEdits = $state<Record<string, ItemStatus>>({});
+	let editErrors = $state<Record<string, string>>({});
+
+	function effectiveStatus(item: Item): ItemStatus {
+		return pendingEdits[item.id] ?? item.status;
+	}
 
 	function updateQuery(partial: Partial<ItemsQuery>) {
 		const next: ItemsQuery = {
@@ -140,7 +151,50 @@
 					{#each result.rows as item (item.id)}
 						<tr class="border-t border-border hover:bg-surface-soft">
 							<td class="p-3 font-medium text-fg">{item.name}</td>
-							<td class="p-3 capitalize text-fg-muted">{item.status}</td>
+							<td class="p-3">
+								<form
+									method="POST"
+									action="?/updateStatus"
+									use:enhance={({ formData }) => {
+										const newStatus = formData.get('status') as ItemStatus;
+										const previous = effectiveStatus(item);
+										pendingEdits[item.id] = newStatus;
+										delete editErrors[item.id];
+
+										return async ({ result }) => {
+											if (result.type === 'success') {
+												delete pendingEdits[item.id];
+												await invalidate('app:items');
+											} else {
+												pendingEdits[item.id] = previous;
+												const message =
+													result.type === 'failure' &&
+													result.data &&
+													typeof result.data === 'object' &&
+													'error' in result.data
+														? String(result.data.error)
+														: 'Update failed.';
+												editErrors[item.id] = message;
+											}
+										};
+									}}
+								>
+									<input type="hidden" name="id" value={item.id} />
+									<select
+										name="status"
+										value={effectiveStatus(item)}
+										onchange={(e) => e.currentTarget.form?.requestSubmit()}
+										class="rounded border border-border bg-surface px-2 py-1 text-xs capitalize outline-none focus:border-accent"
+									>
+										{#each ITEM_STATUSES as status (status)}
+											<option value={status}>{status}</option>
+										{/each}
+									</select>
+								</form>
+								{#if editErrors[item.id]}
+									<p class="mt-1 text-xs text-danger">{editErrors[item.id]}</p>
+								{/if}
+							</td>
 							<td class="p-3 capitalize text-fg-muted">{item.channel}</td>
 							<td class="p-3 text-fg-muted">{item.owner.name}</td>
 							<td class="p-3 text-right tabular-nums text-fg-muted"

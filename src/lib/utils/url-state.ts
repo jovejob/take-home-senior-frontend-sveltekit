@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ITEM_SORT_FIELDS, ItemChannelSchema, ItemStatusSchema } from '$lib/server/schemas/item';
+import { ITEM_SORT_FIELDS, ItemChannelSchema, ItemStatusSchema } from '$lib/schemas/item';
 import type { ItemsQuery } from '$lib/server/data/query-items';
 
 const DEFAULT_QUERY: ItemsQuery = {
