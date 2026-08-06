@@ -53,6 +53,9 @@ export default [
 			parserOptions: {
 				parser: tsParser
 			}
+		},
+		rules: {
+			'no-unused-vars': ['error', { args: 'all', argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
 		}
 	},
 	{
