@@ -5,9 +5,9 @@
 	import { ITEM_STATUSES, ITEM_CHANNELS, ITEM_SORT_FIELDS } from '$lib/server/schemas/item';
 	import type { ItemSortField } from '$lib/server/schemas/item';
 	import type { ItemsQuery } from '$lib/server/data/query-items';
-	import type { PageProps } from './$types';
+	import type { PageData } from './$types';
 
-	let { data }: PageProps = $props();
+	let { data }: { data: PageData } = $props();
 
 	let searchInput = $state('');
 	let searchDebounceHandle: ReturnType<typeof setTimeout> | undefined;
