@@ -10,6 +10,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Not a real secret — signs demo session cookies for CI builds only.
+  # Set a real one via Vercel project env vars for the actual deployment.
+  SESSION_SECRET: ci-only-session-secret-not-for-production-use
+
 jobs:
   lint:
     name: Lint & format
