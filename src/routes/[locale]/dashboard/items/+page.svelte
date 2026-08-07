@@ -7,6 +7,12 @@
 	import type { ItemSortField, ItemStatus } from '$lib/schemas/item';
 	import type { Item } from '$lib/server/schemas/item';
 	import type { ItemsQuery } from '$lib/server/data/query-items';
+	import { t } from '$lib/i18n/t';
+	import { toastStore } from '$lib/stores/toast.svelte';
+	import Heading from '$lib/components/primitives/Heading.svelte';
+	import Input from '$lib/components/primitives/Input.svelte';
+	import Select from '$lib/components/primitives/Select.svelte';
+	import Badge from '$lib/components/primitives/Badge.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -31,7 +37,6 @@
 		const next: ItemsQuery = {
 			...data.query,
 			...partial,
-			// any filter/sort change resets pagination, except an explicit page change
 			page: partial.page ?? 1
 		};
 		const params = serializeItemsQuery(next);
@@ -61,6 +66,17 @@
 		return data.query.dir === 'asc' ? '▴' : '▾';
 	}
 
+	const COLUMN_LABEL_KEYS: Record<ItemSortField, string> = {
+		name: 'dashboard.items.column.name',
+		status: 'dashboard.items.column.status',
+		channel: 'dashboard.items.column.channel',
+		owner: 'dashboard.items.column.owner',
+		budget: 'dashboard.items.column.budget',
+		spent: 'dashboard.items.column.spent',
+		ctr: 'dashboard.items.column.ctr',
+		updatedAt: 'dashboard.items.column.updated'
+	};
+
 	const currencyFormatter = new Intl.NumberFormat('en-US', {
 		style: 'currency',
 		currency: 'USD',
@@ -78,41 +94,48 @@
 </script>
 
 <svelte:head>
-	<title>Campaigns — Dashboard</title>
+	<title>{t(data.messages, 'dashboard.items.title')} — Dashboard</title>
 </svelte:head>
 
-<h1 class="text-xl font-semibold text-fg">Campaigns</h1>
+<Heading level={1}>{t(data.messages, 'dashboard.items.title')}</Heading>
 
-<div class="mt-4 flex flex-wrap items-center gap-3">
-	<input
+<div class="mt-4 flex flex-wrap items-end gap-3">
+	<Input
+		id="items-search"
 		type="text"
 		placeholder="Filter by name…"
 		value={searchInput}
-		oninput={(e) => onSearchInput(e.currentTarget.value)}
-		class="min-w-[220px] rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-fg outline-none focus:border-accent"
+		oninput={(e: Event) => onSearchInput((e.currentTarget as HTMLInputElement).value)}
+		class="min-w-[220px]"
 	/>
 
-	<select
+	<Select
+		id="items-status-filter"
+		label={t(data.messages, 'dashboard.items.column.status')}
 		value={data.query.status}
-		onchange={(e) => updateQuery({ status: e.currentTarget.value as ItemsQuery['status'] })}
-		class="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-fg"
+		onchange={(e: Event) =>
+			updateQuery({ status: (e.currentTarget as HTMLSelectElement).value as ItemsQuery['status'] })}
 	>
 		<option value="all">All statuses</option>
 		{#each ITEM_STATUSES as status (status)}
 			<option value={status}>{status}</option>
 		{/each}
-	</select>
+	</Select>
 
-	<select
+	<Select
+		id="items-channel-filter"
+		label={t(data.messages, 'dashboard.items.column.channel')}
 		value={data.query.channel}
-		onchange={(e) => updateQuery({ channel: e.currentTarget.value as ItemsQuery['channel'] })}
-		class="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-fg"
+		onchange={(e: Event) =>
+			updateQuery({
+				channel: (e.currentTarget as HTMLSelectElement).value as ItemsQuery['channel']
+			})}
 	>
 		<option value="all">All channels</option>
 		{#each ITEM_CHANNELS as channel (channel)}
 			<option value={channel}>{channel}</option>
 		{/each}
-	</select>
+	</Select>
 </div>
 
 <div class="mt-4 overflow-hidden rounded-lg border border-border">
@@ -131,7 +154,7 @@
 		</table>
 	{:then result}
 		{#if result.rows.length === 0}
-			<div class="p-8 text-center text-fg-muted">No campaigns match your filters.</div>
+			<div class="p-8 text-center text-fg-muted">{t(data.messages, 'dashboard.items.empty')}</div>
 		{:else}
 			<table class="w-full text-sm">
 				<thead class="bg-surface-soft text-xs uppercase tracking-wide text-fg-muted">
@@ -141,7 +164,7 @@
 								class="cursor-pointer select-none p-3 text-left"
 								onclick={() => toggleSort(field)}
 							>
-								{field}
+								{t(data.messages, COLUMN_LABEL_KEYS[field])}
 								<span class="text-accent">{sortIndicator(field)}</span>
 							</th>
 						{/each}
@@ -165,6 +188,7 @@
 											if (result.type === 'success') {
 												delete pendingEdits[item.id];
 												await invalidate('app:items');
+												toastStore.push('success', `${item.name} updated to ${newStatus}.`);
 											} else {
 												pendingEdits[item.id] = previous;
 												const message =
@@ -175,6 +199,7 @@
 														? String(result.data.error)
 														: 'Update failed.';
 												editErrors[item.id] = message;
+												toastStore.push('error', message);
 											}
 										};
 									}}
@@ -195,7 +220,7 @@
 									<p class="mt-1 text-xs text-danger">{editErrors[item.id]}</p>
 								{/if}
 							</td>
-							<td class="p-3 capitalize text-fg-muted">{item.channel}</td>
+							<td class="p-3"><Badge tone="neutral">{item.channel}</Badge></td>
 							<td class="p-3 text-fg-muted">{item.owner.name}</td>
 							<td class="p-3 text-right tabular-nums text-fg-muted"
 								>{currencyFormatter.format(item.budget)}</td
