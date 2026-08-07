@@ -217,7 +217,7 @@
 									</select>
 								</form>
 								{#if editErrors[item.id]}
-									<p class="mt-1 text-xs text-danger">{editErrors[item.id]}</p>
+									<p role="alert" class="mt-1 text-xs text-danger">{editErrors[item.id]}</p>
 								{/if}
 							</td>
 							<td class="p-3"><Badge tone="neutral">{item.channel}</Badge></td>
