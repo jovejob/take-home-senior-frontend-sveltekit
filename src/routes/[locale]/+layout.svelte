@@ -29,14 +29,18 @@
 			<a href="/{data.locale}/login" class="text-fg-muted hover:text-fg"
 				>{t(data.messages, 'nav.login')}</a
 			>
-			<span class="flex items-center gap-1 border-l border-border pl-4">
+			<span class="flex items-center gap-2 border-l border-border pl-4">
 				<a
 					href={localeSwitchHref('en')}
-					class="text-xs {data.locale === 'en' ? 'font-semibold text-fg' : 'text-fg-muted'}">EN</a
+					class="rounded px-2 py-1.5 text-xs {data.locale === 'en'
+						? 'font-semibold text-fg'
+						: 'text-fg-muted'}">EN</a
 				>
 				<a
 					href={localeSwitchHref('de')}
-					class="text-xs {data.locale === 'de' ? 'font-semibold text-fg' : 'text-fg-muted'}">DE</a
+					class="rounded px-2 py-1.5 text-xs {data.locale === 'de'
+						? 'font-semibold text-fg'
+						: 'text-fg-muted'}">DE</a
 				>
 			</span>
 		</div>

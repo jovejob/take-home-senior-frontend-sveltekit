@@ -30,7 +30,12 @@ export default [
 			'@typescript-eslint/no-unused-vars': [
 				'error',
 				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
-			]
+			],
+			// Redundant with TypeScript's own checker, and produces false
+			// positives on Svelte 5 runes ($state, $derived, etc.) in plain
+			// .svelte.ts module files, which aren't real globals but ambient
+			// compiler macros TS understands via generated types.
+			'no-undef': 'off'
 		}
 	},
 	{
@@ -55,7 +60,15 @@ export default [
 			}
 		},
 		rules: {
-			'no-unused-vars': ['error', { args: 'all', argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+			'no-unused-vars': [
+				'error',
+				{ args: 'all', argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+			],
+			// custom_element_props_identifier only matters when compiling
+			// components as custom elements (<svelte:options customElement>),
+			// which this project never does — svelte-check itself doesn't
+			// flag it, confirming it's a benign advisory, not a real issue.
+			'svelte/valid-compile': ['error', { ignoreWarnings: true }]
 		}
 	},
 	{
