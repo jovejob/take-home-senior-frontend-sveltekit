@@ -9,7 +9,7 @@
 		<span class="text-sm text-fg-muted">
 			Signed in as <strong class="text-fg">{data.user?.name}</strong> ({data.user?.role})
 		</span>
-		<form method="POST" action="/logout">
+		<form method="POST" action="/{data.locale}/logout">
 			<button
 				type="submit"
 				class="rounded-lg border border-border px-3 py-1.5 text-sm text-fg transition hover:border-border-strong"

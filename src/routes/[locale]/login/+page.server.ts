@@ -11,14 +11,14 @@ import {
 } from '$lib/server/auth/session';
 import { toSafeUser } from '$lib/server/schemas/user';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
 	if (locals.session) {
-		throw redirect(303, '/dashboard');
+		throw redirect(303, `/${params.locale}/dashboard`);
 	}
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, cookies, params }) => {
 		const formData = Object.fromEntries(await request.formData());
 		const parsed = LoginSchema.safeParse(formData);
 
@@ -46,6 +46,6 @@ export const actions: Actions = {
 			maxAge: SESSION_MAX_AGE_SECONDS
 		});
 
-		throw redirect(303, '/dashboard');
+		throw redirect(303, `/${params.locale}/dashboard`);
 	}
 };

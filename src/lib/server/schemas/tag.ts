@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-export const LocaleSchema = z.enum(['en', 'de']);
-export type Locale = z.infer<typeof LocaleSchema>;
+export { SUPPORTED_LOCALES, LocaleSchema } from '$lib/schemas/locale';
+export type { Locale } from '$lib/schemas/locale';
 
 export const TagSchema = z.object({
 	slug: z.string().min(1),
