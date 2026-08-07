@@ -207,6 +207,7 @@
 									<input type="hidden" name="id" value={item.id} />
 									<select
 										name="status"
+										aria-label="Status for {item.name}"
 										value={effectiveStatus(item)}
 										onchange={(e) => e.currentTarget.form?.requestSubmit()}
 										class="rounded border border-border bg-surface px-2 py-1 text-xs capitalize outline-none focus:border-accent"
