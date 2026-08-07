@@ -23,6 +23,7 @@
 	const otherLocale = $derived(data.locale === 'en' ? 'de' : 'en');
 	const canonicalUrl = $derived(`${page.url.origin}/${data.locale}/blog/${data.post.slug}`);
 	const alternateUrl = $derived(`${page.url.origin}/${otherLocale}/blog/${data.post.slug}`);
+	const ogImageUrl = $derived(`${canonicalUrl}/og`);
 
 	const jsonLd = $derived({
 		'@context': 'https://schema.org',
@@ -68,9 +69,11 @@
 	<meta property="og:title" content={translation.title} />
 	<meta property="og:description" content={translation.excerpt} />
 	<meta property="og:url" content={canonicalUrl} />
+	<meta property="og:image" content={ogImageUrl} />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={translation.title} />
 	<meta name="twitter:description" content={translation.excerpt} />
+	<meta name="twitter:image" content={ogImageUrl} />
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html `<script type="application/ld+json">${jsonLdString}</scri` + `pt>`}
 </svelte:head>

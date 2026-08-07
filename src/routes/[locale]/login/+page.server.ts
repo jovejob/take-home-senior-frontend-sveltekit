@@ -37,7 +37,7 @@ export const actions: Actions = {
 			});
 		}
 
-		const token = createSessionToken(toSafeUser(user));
+		const token = await createSessionToken(toSafeUser(user));
 		cookies.set(SESSION_COOKIE_NAME, token, {
 			path: '/',
 			httpOnly: true,

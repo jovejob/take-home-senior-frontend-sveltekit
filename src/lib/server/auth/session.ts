@@ -5,7 +5,7 @@ import type { SafeUser } from '$lib/server/schemas/user';
 export const SESSION_COOKIE_NAME = 'session';
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
-export function createSessionToken(user: SafeUser): string {
+export async function createSessionToken(user: SafeUser): Promise<string> {
 	const payload: SessionPayload = {
 		sub: user.id,
 		role: user.role,
@@ -14,7 +14,7 @@ export function createSessionToken(user: SafeUser): string {
 	return signSession(payload, SESSION_SECRET);
 }
 
-export function readSessionToken(token: string | undefined): SessionPayload | null {
+export async function readSessionToken(token: string | undefined): Promise<SessionPayload | null> {
 	if (!token) return null;
 	return verifySessionToken(token, SESSION_SECRET);
 }

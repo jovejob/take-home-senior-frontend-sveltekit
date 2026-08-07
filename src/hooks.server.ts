@@ -20,7 +20,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const locale = localeMatch?.[1] ?? DEFAULT_LOCALE;
 
 	const token = event.cookies.get(SESSION_COOKIE_NAME);
-	const payload = readSessionToken(token);
+	const payload = await readSessionToken(token);
 	const user = payload ? findUserById(payload.sub) : null;
 	event.locals.session = user ? toSafeUser(user) : null;
 

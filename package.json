@@ -61,7 +61,8 @@
 	"dependencies": {
 		"web-vitals": "^4.2.4",
 		"zod": "^3.24.1",
-		"marked": "^15.0.4"
+		"marked": "^15.0.4",
+		"@vercel/og": "^0.6.5"
 	},
 	"overrides": {
 		"vite": "^6.0.7",
