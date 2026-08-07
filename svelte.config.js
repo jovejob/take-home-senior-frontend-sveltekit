@@ -22,7 +22,11 @@ const config = {
 			// prerender crawler's link check would otherwise fail the build.
 			// Tighten back to the default ('fail') once /blog, /blog/[slug],
 			// and /search all exist — tracked before final submission.
-			handleHttpError: 'warn'
+			handleHttpError: 'warn',
+			// Prerendered pages have no live request to read an origin from,
+			// so absolute URLs (canonical, OG, hreflang) need this set
+			// explicitly. UPDATE to the real Vercel deployment URL once known.
+			origin: 'https://take-home-senior-frontend-sveltekit.vercel.app'
 		}
 	}
 };
