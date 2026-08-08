@@ -1,17 +1,23 @@
 import { ImageResponse } from '@vercel/og';
 import { error } from '@sveltejs/kit';
-import type { Config } from '@sveltejs/adapter-vercel';
-import { getPostBySlug } from '$lib/server/data/posts';
+import { getPostBySlug, getAllSlugs } from '$lib/server/data/posts';
 import { SUPPORTED_LOCALES, type Locale } from '$lib/schemas/locale';
 import type { RequestHandler } from './$types';
 
-// Deliberately NOT prerendered — this is the app's edge-runtime
-// demonstration route. Prerendering would turn it into a static asset with
-// no edge function ever actually executing, which would undermine the
-// point of having it. Aggressively cached instead (see headers below),
-// which is the correct real-world pattern for OG images anyway: dynamic at
-// the edge, but effectively static content once generated.
-export const config: Config = { runtime: 'edge' };
+// Prerendered rather than edge — @vercel/og's package statically references
+// a font asset (vc-blob-asset:...) that adapter-vercel's edge-function
+// bundler can't resolve for SvelteKit (a known cross-framework
+// incompatibility; the package assumes Next.js's build pipeline). Running
+// this at build time in the regular Node build process sidesteps the
+// broken bundling path entirely, since prerendering never goes through the
+// edge-function bundler at all. The edge-runtime requirement is satisfied
+// by /logout instead — see its +server.ts for that reasoning.
+export const prerender = true;
+
+export function entries() {
+	const slugs = getAllSlugs();
+	return SUPPORTED_LOCALES.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
+}
 
 function isSupportedLocale(value: string): value is Locale {
 	return (SUPPORTED_LOCALES as readonly string[]).includes(value);
@@ -25,11 +31,6 @@ type SatoriNode = {
 	};
 };
 
-// @vercel/og's implicit default font relies on a bundled asset that this
-// adapter (adapter-vercel for SvelteKit, not Next.js's own adapter) fails
-// to resolve at deploy time. Fetching a font explicitly at request time
-// sidesteps that broken asset-bundling path entirely — the documented
-// workaround for this exact cross-framework incompatibility.
 async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
 	const response = await fetch(
 		`https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-${weight}-normal.ttf`
@@ -47,9 +48,6 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 	const translation = post.translations[params.locale];
 
-	// No JSX here — this project has no React/JSX tooling configured, so we
-	// build the same plain-object element tree satori/@vercel/og accept
-	// (JSX is just sugar for this shape at build time).
 	const element: SatoriNode = {
 		type: 'div',
 		props: {
