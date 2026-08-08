@@ -1,23 +1,19 @@
 import { ImageResponse } from '@vercel/og';
 import { error } from '@sveltejs/kit';
-import { getPostBySlug, getAllSlugs } from '$lib/server/data/posts';
+import { getPostBySlug } from '$lib/server/data/posts';
 import { SUPPORTED_LOCALES, type Locale } from '$lib/schemas/locale';
 import type { RequestHandler } from './$types';
 
-// Prerendered rather than edge — @vercel/og's package statically references
-// a font asset (vc-blob-asset:...) that adapter-vercel's edge-function
-// bundler can't resolve for SvelteKit (a known cross-framework
-// incompatibility; the package assumes Next.js's build pipeline). Running
-// this at build time in the regular Node build process sidesteps the
-// broken bundling path entirely, since prerendering never goes through the
-// edge-function bundler at all. The edge-runtime requirement is satisfied
-// by /logout instead — see its +server.ts for that reasoning.
-export const prerender = true;
-
-export function entries() {
-	const slugs = getAllSlugs();
-	return SUPPORTED_LOCALES.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
-}
+// Runs on the default Node runtime — dynamic, not edge, not prerendered.
+// Edge was ruled out because @vercel/og statically references a font
+// asset that adapter-vercel's edge-function bundler can't resolve for
+// SvelteKit (a known cross-framework incompatibility; the package assumes
+// Next.js's build pipeline). Prerendering was then ruled out too:
+// prerendered binary responses lose their Content-Type through Vercel's
+// static-file serving for extensionless routes, causing browsers to
+// download the image instead of rendering it inline. Plain dynamic Node
+// avoids both problems. The edge-runtime requirement is satisfied by
+// /logout instead — see that route's comment for the reasoning.
 
 function isSupportedLocale(value: string): value is Locale {
 	return (SUPPORTED_LOCALES as readonly string[]).includes(value);
