@@ -2,7 +2,10 @@
 	"ci": {
 		"collect": {
 			"staticDistDir": null,
-			"url": ["http://localhost:4173/en"],
+			"url": [
+				"http://localhost:4173/en",
+				"http://localhost:4173/en/blog/sub-second-lcp-on-a-content-site"
+			],
 			"startServerCommand": "npm run preview",
 			"startServerReadyPattern": "Local:",
 			"numberOfRuns": 3,
