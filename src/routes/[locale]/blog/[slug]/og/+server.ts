@@ -25,6 +25,18 @@ type SatoriNode = {
 	};
 };
 
+// @vercel/og's implicit default font relies on a bundled asset that this
+// adapter (adapter-vercel for SvelteKit, not Next.js's own adapter) fails
+// to resolve at deploy time. Fetching a font explicitly at request time
+// sidesteps that broken asset-bundling path entirely — the documented
+// workaround for this exact cross-framework incompatibility.
+async function loadFont(weight: 400 | 700): Promise<ArrayBuffer> {
+	const response = await fetch(
+		`https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-${weight}-normal.ttf`
+	);
+	return response.arrayBuffer();
+}
+
 export const GET: RequestHandler = async ({ params }) => {
 	if (!isSupportedLocale(params.locale)) {
 		throw error(404, 'Not found');
@@ -49,7 +61,7 @@ export const GET: RequestHandler = async ({ params }) => {
 				justifyContent: 'space-between',
 				backgroundColor: post.coverColor,
 				padding: '64px',
-				fontFamily: 'sans-serif'
+				fontFamily: 'Inter'
 			},
 			children: [
 				{
@@ -82,9 +94,15 @@ export const GET: RequestHandler = async ({ params }) => {
 		}
 	};
 
+	const [interRegular, interBold] = await Promise.all([loadFont(400), loadFont(700)]);
+
 	return new ImageResponse(element as ConstructorParameters<typeof ImageResponse>[0], {
 		width: 1200,
 		height: 630,
+		fonts: [
+			{ name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+			{ name: 'Inter', data: interBold, weight: 700, style: 'normal' }
+		],
 		headers: {
 			'Cache-Control': 'public, max-age=31536000, immutable'
 		}
